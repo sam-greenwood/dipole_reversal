@@ -5,6 +5,7 @@
   - IGRF
   - IMMAB4
   - CHAOS5
+  - CHAOS-6
   - CALS10K1B
 - instantaneous_flows (original study by Sam/Phil)
   - original code (original fortran code files provided by Phil)
