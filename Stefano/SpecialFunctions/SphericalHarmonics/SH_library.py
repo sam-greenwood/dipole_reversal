@@ -224,3 +224,70 @@ def calcB(beta,theta,phi,a,r):
         Bp_r = Bp_r - (a/r)**(l+2) * ( glm * np.divide(dphSH_c,np.sin(theta)) + hlm * np.divide(dphSH_s,np.sin(theta)) )
          
     return Br_r, Bt_r, Bp_r;
+
+
+def calc_spectra(beta,a,r):
+    '''
+    calculate the power spectra components from its SH expansion beta
+    INPUT
+    beta = [l,m,glm,hlm]
+    OUTPUT
+    spectra = sum_m (l+1)* (a/r)**(2*l+4) * betalm**2
+    '''
+
+    Lmax = beta[-1,0]
+    spectra = np.zeros(Lmax)
+    for i in range(beta.shape[0]):
+        l = int(beta[i,0])
+        glm=beta[i,2]
+        hlm=beta[i,3]
+
+        spectra[l-1] = spectra[l-1] + (l+1)* (a/r)**(2*l+4) * (glm**2+hlm**2)
+
+    return spectra;
+
+
+def lin2matCoeffs(beta_lin):
+    '''
+    convert a series of SH coefficients organised as
+    beta_lin = [g10, g11, h11, g20...]
+    into 
+    beta_mat = [[1,0,g10,0],
+                [1,1,g11,h11],
+                ...
+                ]
+    '''
+    l = 1
+    m = 0
+    ilin = 0
+    Nc = len(beta_lin)
+    Lmax = np.ceil( np.sqrt(Nc+1)-1 )
+    beta_mat = np.zeros([int( (Lmax**2+Lmax)/2 + Lmax ),4])
+    for ic in range(beta_mat.shape[0]): # cycle over the rows of beta_mat
+    
+        beta_mat[ic,0] = l
+        beta_mat[ic,1] = m
+
+        glm = beta_lin[ilin]
+
+        if m == 0:
+            hlm = 0
+            ilin = ilin + 1
+        else:
+            hlm = beta_lin[ilin +1]
+            ilin = ilin +2
+            
+        beta_mat[ic,2] = glm
+        beta_mat[ic,3] = hlm
+
+        if ilin >= Nc: break
+    
+        m = m+1
+        if m >l:
+            l=l+1
+            m=0
+        
+        
+    return beta_mat;
+        
+        
